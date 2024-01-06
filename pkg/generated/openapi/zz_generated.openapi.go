@@ -267,6 +267,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"k8s.io/api/autoscaling/v2.MetricSpec":                                                                  schema_k8sio_api_autoscaling_v2_MetricSpec(ref),
 		"k8s.io/api/autoscaling/v2.MetricStatus":                                                                schema_k8sio_api_autoscaling_v2_MetricStatus(ref),
 		"k8s.io/api/autoscaling/v2.MetricTarget":                                                                schema_k8sio_api_autoscaling_v2_MetricTarget(ref),
+		"k8s.io/api/autoscaling/v2.MetricTargetRange":                                                           schema_k8sio_api_autoscaling_v2_MetricTargetRange(ref),
 		"k8s.io/api/autoscaling/v2.MetricValueStatus":                                                           schema_k8sio_api_autoscaling_v2_MetricValueStatus(ref),
 		"k8s.io/api/autoscaling/v2.ObjectMetricSource":                                                          schema_k8sio_api_autoscaling_v2_ObjectMetricSource(ref),
 		"k8s.io/api/autoscaling/v2.ObjectMetricStatus":                                                          schema_k8sio_api_autoscaling_v2_ObjectMetricStatus(ref),
@@ -13261,7 +13262,7 @@ func schema_k8sio_api_autoscaling_v2_MetricTarget(ref common.ReferenceCallback) 
 				Properties: map[string]spec.Schema{
 					"type": {
 						SchemaProps: spec.SchemaProps{
-							Description: "type represents whether the metric type is Utilization, Value, or AverageValue",
+							Description: "type represents whether the metric type is Utilization, Value, AverageValue, or AverageRange",
 							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
@@ -13286,8 +13287,42 @@ func schema_k8sio_api_autoscaling_v2_MetricTarget(ref common.ReferenceCallback) 
 							Format:      "int32",
 						},
 					},
+					"averageRange": {
+						SchemaProps: spec.SchemaProps{
+							Description: "averageRange specifies an upper and lower bound for which the calculated value (the average of the resource metric across all relevant pods) will not cause any scaling activity.  If the value is lower than the lower bound, then downscaling will be considered. if the value is higher than the upper bound, then upscaling will be considered.",
+							Ref:         ref("k8s.io/api/autoscaling/v2.MetricTargetRange"),
+						},
+					},
 				},
 				Required: []string{"type"},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/api/autoscaling/v2.MetricTargetRange", "k8s.io/apimachinery/pkg/api/resource.Quantity"},
+	}
+}
+
+func schema_k8sio_api_autoscaling_v2_MetricTargetRange(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "MetricTargetRange defines the upper and lower bounds of a metric target value",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"upper": {
+						SchemaProps: spec.SchemaProps{
+							Description: "upper represents the highest value for which no upscaling activity occurs",
+							Ref:         ref("k8s.io/apimachinery/pkg/api/resource.Quantity"),
+						},
+					},
+					"lower": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lower reporesents the lowest value for which no downscaling activity occurs",
+							Ref:         ref("k8s.io/apimachinery/pkg/api/resource.Quantity"),
+						},
+					},
+				},
+				Required: []string{"upper", "lower"},
 			},
 		},
 		Dependencies: []string{

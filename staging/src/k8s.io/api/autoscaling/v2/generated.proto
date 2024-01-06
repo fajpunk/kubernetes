@@ -388,7 +388,7 @@ message MetricStatus {
 
 // MetricTarget defines the target value, average value, or average utilization of a specific metric
 message MetricTarget {
-  // type represents whether the metric type is Utilization, Value, or AverageValue
+  // type represents whether the metric type is Utilization, Value, AverageValue, or AverageRange
   optional string type = 1;
 
   // value is the target value of the metric (as a quantity).
@@ -406,6 +406,22 @@ message MetricTarget {
   // Currently only valid for Resource metric source type
   // +optional
   optional int32 averageUtilization = 4;
+
+  // averageRange specifies an upper and lower bound for which the calculated value (the average of the resource
+  // metric across all relevant pods) will not cause any scaling activity.  If the value is lower than the lower
+  // bound, then downscaling will be considered. if the value is higher than the upper bound, then upscaling will
+  // be considered.
+  // +optional
+  optional MetricTargetRange averageRange = 5;
+}
+
+// MetricTargetRange defines the upper and lower bounds of a metric target value
+message MetricTargetRange {
+  // upper represents the highest value for which no upscaling activity occurs
+  optional k8s.io.apimachinery.pkg.api.resource.Quantity upper = 1;
+
+  // lower reporesents the lowest value for which no downscaling activity occurs
+  optional k8s.io.apimachinery.pkg.api.resource.Quantity lower = 2;
 }
 
 // MetricValueStatus holds the current value for a metric

@@ -385,7 +385,7 @@ const (
 // MetricTargetRange defines the upper and lower bounds of a metric target value
 type MetricTargetRange struct {
 	// upper represents the highest value for which no upscaling activity occurs
-	Upper resource.Quantity `json:"upper" protobuf:"bytes,1,name=lower"`
+	Upper resource.Quantity `json:"upper" protobuf:"bytes,1,name=upper"`
 
 	// lower reporesents the lowest value for which no downscaling activity occurs
 	Lower resource.Quantity `json:"lower" protobuf:"bytes,2,name=lower"`

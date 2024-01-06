@@ -18,7 +18,6 @@ package v2beta2
 
 import (
 	autoscalingv2beta2 "k8s.io/api/autoscaling/v2beta2"
-
 	"k8s.io/apimachinery/pkg/conversion"
 	"k8s.io/kubernetes/pkg/apis/autoscaling"
 )
@@ -38,5 +37,9 @@ func Convert_v2beta2_HorizontalPodAutoscaler_To_autoscaling_HorizontalPodAutosca
 	}
 	// v2beta2 round-trips to internal without any serialized annotations, make sure any from other versions don't get serialized
 	out.Annotations, _ = autoscaling.DropRoundTripHorizontalPodAutoscalerAnnotations(out.Annotations)
+	return nil
+}
+func Convert_autoscaling_MetricTarget_To_v2beta2_MetricTarget(in *autoscaling.MetricTarget, out *autoscalingv2beta2.MetricTarget, s conversion.Scope) error {
+	in.AverageRange = nil
 	return nil
 }

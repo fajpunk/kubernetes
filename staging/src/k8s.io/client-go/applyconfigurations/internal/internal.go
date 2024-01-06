@@ -2713,6 +2713,9 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: io.k8s.api.autoscaling.v2.MetricTarget
   map:
     fields:
+    - name: averageRange
+      type:
+        namedType: io.k8s.api.autoscaling.v2.MetricTargetRange
     - name: averageUtilization
       type:
         scalar: numeric
@@ -2724,6 +2727,15 @@ var schemaYAML = typed.YAMLObject(`types:
         scalar: string
       default: ""
     - name: value
+      type:
+        namedType: io.k8s.apimachinery.pkg.api.resource.Quantity
+- name: io.k8s.api.autoscaling.v2.MetricTargetRange
+  map:
+    fields:
+    - name: lower
+      type:
+        namedType: io.k8s.apimachinery.pkg.api.resource.Quantity
+    - name: upper
       type:
         namedType: io.k8s.apimachinery.pkg.api.resource.Quantity
 - name: io.k8s.api.autoscaling.v2.MetricValueStatus
