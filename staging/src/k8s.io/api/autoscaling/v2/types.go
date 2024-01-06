@@ -340,7 +340,7 @@ type MetricIdentifier struct {
 
 // MetricTarget defines the target value, average value, or average utilization of a specific metric
 type MetricTarget struct {
-	// type represents whether the metric type is Utilization, Value, or AverageValue
+	// type represents whether the metric type is Utilization, Value, AverageValue, or AverageRange
 	Type MetricTargetType `json:"type" protobuf:"bytes,1,name=type"`
 
 	// value is the target value of the metric (as a quantity).
@@ -358,10 +358,17 @@ type MetricTarget struct {
 	// Currently only valid for Resource metric source type
 	// +optional
 	AverageUtilization *int32 `json:"averageUtilization,omitempty" protobuf:"bytes,4,opt,name=averageUtilization"`
+
+	// averageRange specifies an upper and lower bound for which the calculated value (the average of the resource
+	// metric across all relevant pods) will not cause any scaling activity.  If the value is lower than the lower
+	// bound, then downscaling will be considered. if the value is higher than the upper bound, then upscaling will
+	// be considered.
+	// +optional
+	AverageRange *MetricTargetRange `json:"averageRange,omitempty" protobuf:"bytes,5,opt,name=averageRange"`
 }
 
 // MetricTargetType specifies the type of metric being targeted, and should be either
-// "Value", "AverageValue", or "Utilization"
+// "Value", "AverageValue", "Utilization", or "AverageRange
 type MetricTargetType string
 
 const (
@@ -371,7 +378,18 @@ const (
 	ValueMetricType MetricTargetType = "Value"
 	// AverageValueMetricType declares a MetricTarget is an
 	AverageValueMetricType MetricTargetType = "AverageValue"
+	// AverageRangeMetricType declares a MetricTarget is an
+	AverageRangeMetricType MetricTargetType = "AverageRange"
 )
+
+// MetricTargetRange defines the upper and lower bounds of a metric target value
+type MetricTargetRange struct {
+	// upper represents the highest value for which no upscaling activity occurs
+	Upper resource.Quantity `json:"upper" protobuf:"bytes,1,name=lower"`
+
+	// lower reporesents the lowest value for which no downscaling activity occurs
+	Lower resource.Quantity `json:"lower" protobuf:"bytes,2,name=lower"`
+}
 
 // HorizontalPodAutoscalerStatus describes the current status of a horizontal pod autoscaler.
 type HorizontalPodAutoscalerStatus struct {

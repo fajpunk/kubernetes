@@ -340,10 +340,16 @@ type MetricTarget struct {
 	// the requested value of the resource for the pods.
 	// Currently only valid for Resource metric source type
 	AverageUtilization *int32
+
+	// AverageRange specifies an upper and lower bound for which the calculated value (the average of the resource
+	// metric across all relevant pods) will not cause any scaling activity.  If the value is lower than the lower
+	// bound, then downscaling will be considered. if the value is higher than the upper bound, then upscaling will
+	// be considered.
+	AverageRange *MetricTargetRange
 }
 
 // MetricTargetType specifies the type of metric being targeted, and should be either
-// "Value", "AverageValue", or "Utilization"
+// "Value", "AverageValue", "Utilization", or "AverageRange"
 type MetricTargetType string
 
 const (
@@ -353,7 +359,18 @@ const (
 	ValueMetricType MetricTargetType = "Value"
 	// AverageValueMetricType is a possible value for MetricTarget.Type.
 	AverageValueMetricType MetricTargetType = "AverageValue"
+	// AverageRangeMetricType is a possible value for MetricTarget.Type.
+	AverageRangeMetricType MetricTargetType = "AverageRange"
 )
+
+// MetricTargetRange defines the upper and lower bounds of a metric target value
+type MetricTargetRange struct {
+	// Upper represents the highest value for which no upscaling activity occurs
+	Upper resource.Quantity
+
+	// Lower reporesents the lowest value for which no downscaling activity occurs
+	Lower resource.Quantity
+}
 
 // HorizontalPodAutoscalerStatus describes the current status of a horizontal pod autoscaler.
 type HorizontalPodAutoscalerStatus struct {
