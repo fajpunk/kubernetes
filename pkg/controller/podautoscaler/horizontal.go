@@ -582,7 +582,7 @@ func (a *HorizontalController) computeStatusForObjectMetric(specReplicas, status
 
 // computeStatusForPodsMetric computes the desired number of replicas for the specified metric of type PodsMetricSourceType.
 func (a *HorizontalController) computeStatusForPodsMetric(currentReplicas int32, metricSpec autoscalingv2.MetricSpec, hpa *autoscalingv2.HorizontalPodAutoscaler, selector labels.Selector, status *autoscalingv2.MetricStatus, metricSelector labels.Selector) (replicaCountProposal int32, timestampProposal time.Time, metricNameProposal string, condition autoscalingv2.HorizontalPodAutoscalerCondition, err error) {
-	replicaCountProposal, usageProposal, timestampProposal, err := a.replicaCalc.GetMetricReplicas(currentReplicas, metricSpec.Pods.Target.AverageValue.MilliValue(), metricSpec.Pods.Metric.Name, hpa.Namespace, selector, metricSelector)
+	replicaCountProposal, usageProposal, timestampProposal, err := a.replicaCalc.GetMetricReplicas(currentReplicas, metricSpec.Pods.Target, metricSpec.Pods.Metric.Name, hpa.Namespace, selector, metricSelector)
 	if err != nil {
 		condition = a.getUnableComputeReplicaCountCondition(hpa, "FailedGetPodsMetric", err)
 		return 0, timestampProposal, "", condition, err
@@ -609,7 +609,7 @@ func (a *HorizontalController) computeStatusForResourceMetricGeneric(ctx context
 	condition autoscalingv2.HorizontalPodAutoscalerCondition, err error) {
 	if target.AverageValue != nil {
 		var rawProposal int64
-		replicaCountProposal, rawProposal, timestampProposal, err := a.replicaCalc.GetRawResourceReplicas(ctx, currentReplicas, target.AverageValue.MilliValue(), resourceName, namespace, selector, container)
+		replicaCountProposal, rawProposal, timestampProposal, err := a.replicaCalc.GetRawResourceReplicas(ctx, currentReplicas, target, resourceName, namespace, selector, container)
 		if err != nil {
 			return 0, nil, time.Time{}, "", condition, fmt.Errorf("failed to get %s usage: %v", resourceName, err)
 		}

@@ -51,16 +51,33 @@ func GetResourceUtilizationRatio(metrics PodMetricsInfo, requests map[string]int
 	return float64(currentUtilization) / float64(targetUtilization), currentUtilization, metricsTotal / int64(numEntries), nil
 }
 
-// GetMetricUsageRatio takes in a set of metrics and a target usage value,
-// and calculates the ratio of desired to actual usage
+// GetMetricUsageRatio takes in a set of metrics and a target usage range (which may have the same value for the upper
+// and lower bounds, which signifies a single target value), and calculates the ratio of desired to actual usage
 // (returning that and the actual usage)
-func GetMetricUsageRatio(metrics PodMetricsInfo, targetUsage int64) (usageRatio float64, currentUsage int64) {
+func GetMetricUsageRatio(metrics PodMetricsInfo, targetUsageLower int64, targetUsageUpper int64) (usageRatio float64, currentUsage int64) {
 	metricsTotal := int64(0)
 	for _, metric := range metrics {
 		metricsTotal += metric.Value
 	}
 
 	currentUsage = metricsTotal / int64(len(metrics))
+
+	var targetUsage int64
+
+	if currentUsage >= targetUsageLower && currentUsage <= targetUsageUpper {
+		// The current usage is in the acceptable range so return 1 to signify no scaling
+		// is necessary in either direction
+		targetUsage = currentUsage
+	} else if targetUsageLower == targetUsageUpper {
+		// We have a single metric
+		targetUsage = targetUsageLower
+	} else if currentUsage < targetUsageLower {
+		// For scale down, use the lower bound of the range to calculate scale percentage
+		targetUsage = targetUsageLower
+	} else if currentUsage > targetUsageUpper {
+		// For scale up, use the upper bound of the range to calculate scale percentage
+		targetUsage = targetUsageUpper
+	}
 
 	return float64(currentUsage) / float64(targetUsage), currentUsage
 }

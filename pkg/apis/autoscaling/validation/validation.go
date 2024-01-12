@@ -375,8 +375,8 @@ func validatePodsSource(src *autoscaling.PodsMetricSource, fldPath *field.Path) 
 	allErrs = append(allErrs, validateMetricIdentifier(src.Metric, fldPath.Child("metric"))...)
 	allErrs = append(allErrs, validateMetricTarget(src.Target, fldPath.Child("target"))...)
 
-	if src.Target.AverageValue == nil {
-		allErrs = append(allErrs, field.Required(fldPath.Child("target").Child("averageValue"), "must specify a positive target averageValue"))
+	if src.Target.AverageValue == nil && src.Target.AverageRange == nil {
+		allErrs = append(allErrs, field.Required(fldPath.Child("target").Child("averageValue"), "must specify a positive target averageValue or an averageRange"))
 	}
 
 	return allErrs
@@ -439,8 +439,9 @@ func validateMetricTarget(mt autoscaling.MetricTarget, fldPath *field.Path) fiel
 
 	if mt.Type != autoscaling.UtilizationMetricType &&
 		mt.Type != autoscaling.ValueMetricType &&
-		mt.Type != autoscaling.AverageValueMetricType {
-		allErrs = append(allErrs, field.Invalid(fldPath.Child("type"), mt.Type, "must be either Utilization, Value, or AverageValue"))
+		mt.Type != autoscaling.AverageValueMetricType &&
+		mt.Type != autoscaling.AverageRangeMetricType {
+		allErrs = append(allErrs, field.Invalid(fldPath.Child("type"), mt.Type, "must be either Utilization, Value, AverageValue, or AverageRange"))
 	}
 
 	if mt.Value != nil && mt.Value.Sign() != 1 {
