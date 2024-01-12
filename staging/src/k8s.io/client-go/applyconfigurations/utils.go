@@ -407,6 +407,8 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &autoscalingv2.MetricStatusApplyConfiguration{}
 	case v2.SchemeGroupVersion.WithKind("MetricTarget"):
 		return &autoscalingv2.MetricTargetApplyConfiguration{}
+	case v2.SchemeGroupVersion.WithKind("MetricTargetRange"):
+		return &autoscalingv2.MetricTargetRangeApplyConfiguration{}
 	case v2.SchemeGroupVersion.WithKind("MetricValueStatus"):
 		return &autoscalingv2.MetricValueStatusApplyConfiguration{}
 	case v2.SchemeGroupVersion.WithKind("ObjectMetricSource"):

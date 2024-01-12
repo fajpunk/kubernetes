@@ -26,10 +26,11 @@ import (
 // MetricTargetApplyConfiguration represents an declarative configuration of the MetricTarget type for use
 // with apply.
 type MetricTargetApplyConfiguration struct {
-	Type               *v2.MetricTargetType `json:"type,omitempty"`
-	Value              *resource.Quantity   `json:"value,omitempty"`
-	AverageValue       *resource.Quantity   `json:"averageValue,omitempty"`
-	AverageUtilization *int32               `json:"averageUtilization,omitempty"`
+	Type               *v2.MetricTargetType                 `json:"type,omitempty"`
+	Value              *resource.Quantity                   `json:"value,omitempty"`
+	AverageValue       *resource.Quantity                   `json:"averageValue,omitempty"`
+	AverageUtilization *int32                               `json:"averageUtilization,omitempty"`
+	AverageRange       *MetricTargetRangeApplyConfiguration `json:"averageRange,omitempty"`
 }
 
 // MetricTargetApplyConfiguration constructs an declarative configuration of the MetricTarget type for use with
@@ -67,5 +68,13 @@ func (b *MetricTargetApplyConfiguration) WithAverageValue(value resource.Quantit
 // If called multiple times, the AverageUtilization field is set to the value of the last call.
 func (b *MetricTargetApplyConfiguration) WithAverageUtilization(value int32) *MetricTargetApplyConfiguration {
 	b.AverageUtilization = &value
+	return b
+}
+
+// WithAverageRange sets the AverageRange field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the AverageRange field is set to the value of the last call.
+func (b *MetricTargetApplyConfiguration) WithAverageRange(value *MetricTargetRangeApplyConfiguration) *MetricTargetApplyConfiguration {
+	b.AverageRange = value
 	return b
 }
