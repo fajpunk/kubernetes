@@ -197,19 +197,27 @@ func (c *ReplicaCalculator) calcPlainMetricReplicas(metrics metricsclient.PodMet
 	var (
 		targetLower int64
 		targetUpper int64
+		alwaysScale bool
 		tolerance   float64
 	)
 
 	if target.AverageValue != nil {
 		targetUpper = target.AverageValue.MilliValue()
 		targetLower = target.AverageValue.MilliValue()
+		alwaysScale = false
 		tolerance = c.tolerance
 	} else if target.AverageRange != nil {
 		targetLower = target.AverageRange.Lower.MilliValue()
 		targetUpper = target.AverageRange.Upper.MilliValue()
+		alwaysScale = true
 		tolerance = 0
 	}
 	usageRatio, usage := metricsclient.GetMetricUsageRatio(metrics, targetLower, targetUpper)
+
+	roundFunc := math.Ceil
+	if usageRatio < 1 && alwaysScale {
+		roundFunc = math.Floor
+	}
 
 	scaleUpWithUnready := len(unreadyPods) > 0 && usageRatio > 1.0
 
@@ -220,7 +228,7 @@ func (c *ReplicaCalculator) calcPlainMetricReplicas(metrics metricsclient.PodMet
 		}
 
 		// if we don't have any unready or missing pods, we can calculate the new replica count now
-		return int32(math.Ceil(usageRatio * float64(readyPodCount))), usage, nil
+		return int32(roundFunc(usageRatio * float64(readyPodCount))), usage, nil
 	}
 
 	if len(missingPods) > 0 {
@@ -254,7 +262,7 @@ func (c *ReplicaCalculator) calcPlainMetricReplicas(metrics metricsclient.PodMet
 		return currentReplicas, usage, nil
 	}
 
-	newReplicas := int32(math.Ceil(newUsageRatio * float64(len(metrics))))
+	newReplicas := int32(roundFunc(newUsageRatio * float64(len(metrics))))
 	if (newUsageRatio < 1.0 && newReplicas > currentReplicas) || (newUsageRatio > 1.0 && newReplicas < currentReplicas) {
 		// return the current replicas if the change of metrics length would cause a change in scale direction
 		return currentReplicas, usage, nil
